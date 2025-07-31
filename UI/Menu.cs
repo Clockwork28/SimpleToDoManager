@@ -61,7 +61,7 @@ namespace SimpleToDoManager.UI
                 catch (Exception e)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{e.Message}");
+                    Console.WriteLine($"Error: {e.Message}");
                     Console.ResetColor();
                 }
             }
@@ -186,7 +186,7 @@ namespace SimpleToDoManager.UI
                 catch (Exception e)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{e.Message}");  
+                    Console.WriteLine($"Error: {e.Message}");  
                     Console.ResetColor();
                 }
             }

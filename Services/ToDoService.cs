@@ -24,14 +24,14 @@ namespace SimpleToDoManager.Services
             catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{e.Message}");
+                Console.WriteLine($"Error: {e.Message}");
                 Console.ResetColor();
                 return null;
             }
         }
         public List<ToDoItem> GetAll()
         {
-            var itemList = _dbContext.ToDoItems.ToList();
+            var itemList = _dbContext.ToDoItems.OrderBy(x=>x.CreatedAt).ToList();
             return itemList;
         }
 
@@ -57,7 +57,7 @@ namespace SimpleToDoManager.Services
             catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{e.Message}");
+                Console.WriteLine($"Error: {e.Message}");
                 Console.ResetColor();
                 return null;
             }
