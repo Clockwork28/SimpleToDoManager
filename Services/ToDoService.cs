@@ -1,12 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SimpleToDoManager.Data;
+﻿using SimpleToDoManager.Data;
 using SimpleToDoManager.Interfaces;
 using SimpleToDoManager.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SimpleToDoManager.Services
 {
@@ -18,24 +12,55 @@ namespace SimpleToDoManager.Services
             _dbContext = dbContext;
         }
 
-        public ToDoItem? Add(string Name)
+        public ToDoItem? Add(string name)
         {
-            throw new NotImplementedException();
+            try
+            {
+                ToDoItem item = new(name);
+                _dbContext.ToDoItems.Add(item);
+                _dbContext.SaveChanges();
+                return item;
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{e.Message}");
+                Console.ResetColor();
+                return null;
+            }
         }
-
-        public ToDoItem? Delete(int Index)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<ToDoItem> GetAll()
         {
-            throw new NotImplementedException();
+            var itemList = _dbContext.ToDoItems.ToList();
+            return itemList;
         }
 
-        public ToDoItem? MarkCompleted(int Index)
+        public ToDoItem? MarkCompleted(Guid id)
         {
-            throw new NotImplementedException();
+            var item = _dbContext.ToDoItems.Find(id);
+            if (item == null) return null;
+            item.IsCompleted = true;
+            _dbContext.SaveChanges();
+            return item;
+        }
+
+        public ToDoItem? Delete(Guid id)
+        {
+            var item = _dbContext.ToDoItems.Find(id);
+            if (item == null) return null;
+            try
+            {
+                _dbContext.ToDoItems.Remove(item);
+                _dbContext.SaveChanges();
+                return item;
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{e.Message}");
+                Console.ResetColor();
+                return null;
+            }
         }
     }
 }

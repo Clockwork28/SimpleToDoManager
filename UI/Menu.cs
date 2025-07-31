@@ -1,11 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using SimpleToDoManager.Interfaces;
-using SimpleToDoManager.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SimpleToDoManager.Interfaces;
+using SimpleToDoManager.Models;
 
 namespace SimpleToDoManager.UI
 {
@@ -24,16 +18,14 @@ namespace SimpleToDoManager.UI
             while (!exit)
             {
                 Console.Clear();
-                Show();
+                ShowOptions();
                 switch (Select())
                 {
                     case 1:
                         Add();
                         break;
                     case 2:
-                        View();
-                        Console.WriteLine($"Press any key to go back...");
-                        Console.ReadKey();
+                        View(true);      
                         break;
                     case 3:
                         Mark();
@@ -48,7 +40,7 @@ namespace SimpleToDoManager.UI
             }
             return;
         }
-        private void Show()
+        private void ShowOptions()
         {
             Console.ResetColor();
             Console.WriteLine("---- To-Do List ----");
@@ -82,62 +74,100 @@ namespace SimpleToDoManager.UI
             Console.WriteLine("Write the task you want added:");
             Console.WriteLine("(Type \"0\" to go back)");
             string? input = string.Empty;
-            while (string.IsNullOrEmpty(input))
+            while (string.IsNullOrWhiteSpace(input))
             {
                 input = Console.ReadLine();
             }
             if (input.Equals("0")) return;
-            var result = _service.Add(input);
+            var result =  _service.Add(input);
             if (result != null)
-                Console.WriteLine("Task added successfully!");
+                Console.WriteLine("\nTask added successfully!");
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("There was an error while adding the task.");
                 Console.ResetColor();
             }
+            WaitForKey();
             return;
         }
-        private void View()
+
+        private List<ToDoItem> View(bool pause)
         {
             Console.Clear();
             Console.WriteLine("--- Current tasks ---");
-            _service.GetAll();
-            return;
+            var itemList = _service.GetAll();
+            for(int i = 0; i < itemList.Count; i++)
+            {
+                Console.Write($"{i + 1}. ");
+                if (itemList[i].IsCompleted)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("✓ ");
+                }
+                Console.WriteLine($"{itemList[i].Name}");
+                Console.ResetColor();
+            }
+            if (pause)
+            {
+                WaitForKey();
+            }
+            return itemList;
         }
 
         private void Mark()
         {
-            View();
-            int index = PromptForIndex("Type the index of the task you want completed:");
+            var itemList = View(false);
+            int index = PromptForIndex("\nType the index of the task you want completed:");
             if (index == 0) return;
-            var marked = _service.MarkCompleted(index - 1);
+            var item = itemList.ElementAtOrDefault(index-1);
+            if (item == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid task index!");
+                Console.ResetColor();
+                WaitForKey();
+                return;
+            }
+            var marked = _service.MarkCompleted(item.Id);
             if (marked == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("There was an error while marking the task");
                 Console.ResetColor();
+                WaitForKey();
                 return;
             }
-            View();
+            View(true);
             return;
         }
 
         private void Delete()
         {
-            View();
-            int index = PromptForIndex("Type the index of the task you want deleted:");
+            var itemList = View(false);
+            int index = PromptForIndex("\nType the index of the task you want deleted:");
             if (index == 0) return;
-            var deleted = _service.Delete(index - 1);
+            var item = itemList.ElementAtOrDefault(index-1);
+            if (item == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid task index!");
+                Console.ResetColor();
+                WaitForKey();
+                return;
+            }
+            var deleted = _service.Delete(item.Id);
             if (deleted == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("There was an error while deleting task");
                 Console.ResetColor();
+                WaitForKey();
                 return;
             }
-            View();
-            Console.WriteLine($"Task #{index} \"{deleted.Name}\" sucessfully deleted.");
+            View(false);
+            Console.WriteLine($"\nTask #{index} \"{deleted.Name}\" sucessfully deleted.");
+            WaitForKey();
             return;
         }
 
@@ -156,11 +186,17 @@ namespace SimpleToDoManager.UI
                 catch (Exception e)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{e.Message}");
+                    Console.WriteLine($"{e.Message}");  
                     Console.ResetColor();
                 }
             }
             return input;
+        }
+
+        private void WaitForKey()
+        {
+            Console.WriteLine($"\nPress any key to go back...");
+            Console.ReadKey();
         }
     }
 }

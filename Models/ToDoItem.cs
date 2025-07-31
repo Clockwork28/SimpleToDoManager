@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SimpleToDoManager.Models
+﻿namespace SimpleToDoManager.Models
 {
     public class ToDoItem()
     {
@@ -12,5 +6,10 @@ namespace SimpleToDoManager.Models
        public string Name { get; set; } = string.Empty;
        public bool IsCompleted { get; set; }
        public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+        public ToDoItem(string inputName) : this()
+        {
+            Name = inputName;
+        }
     }
 }
