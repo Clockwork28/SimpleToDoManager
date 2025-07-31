@@ -1,3 +1,16 @@
 ﻿using SimpleToDoManager.UI;
-
-Menu.Run();
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using SimpleToDoManager.Data;
+using SimpleToDoManager.Services;
+using SimpleToDoManager.Interfaces;
+var services = new ServiceCollection();
+services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=todo.db"));
+services.AddScoped<IToDoService, ToDoService>();
+services.AddScoped<Menu>();
+var serviceProvider = services.BuildServiceProvider();
+using var scope = serviceProvider.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+db.Database.EnsureCreated();
+var menu = scope.ServiceProvider.GetRequiredService<Menu>();
+menu.Run();
