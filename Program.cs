@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SimpleToDoManager.Data;
 using SimpleToDoManager.Services;
 using SimpleToDoManager.Interfaces;
+
 var services = new ServiceCollection();
 services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=todo.db"));
 services.AddScoped<IToDoService, ToDoService>();
